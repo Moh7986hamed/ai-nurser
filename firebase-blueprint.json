@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "description": "Unique username" },
+        "password": { "type": "string", "description": "Plain text password (for prototype)" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "admin"], "description": "User role" },
+        "status": { "type": "string", "enum": ["active", "inactive"], "description": "Account status" },
+        "isDeveloper": { "type": "boolean", "description": "Whether the user is a developer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastLogin": { "type": "string", "format": "date-time" }
+      },
+      "required": ["username", "password", "status", "isDeveloper"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A single message in a chat session",
+      "type": "object",
+      "properties": {
+        "role": { "type": "string", "enum": ["user", "assistant"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["role", "content", "timestamp"]
+    },
+    "ChatSession": {
+      "title": "ChatSession",
+      "description": "A chat session containing multiple messages",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "messages": {
+          "type": "array",
+          "items": { "$ref": "ChatMessage" }
+        },
+        "title": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "messages", "createdAt", "updatedAt"]
+    },
+    "DeletedUser": {
+      "title": "DeletedUser",
+      "description": "Log of deleted user accounts",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string" },
+        "deletedBy": { "type": "string", "description": "Username of the person who deleted the account" },
+        "deletedAt": { "type": "string", "format": "date-time" },
+        "originalDocId": { "type": "string" }
+      },
+      "required": ["username", "deletedBy", "deletedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile data"
+    },
+    "/chatSessions/{sessionId}": {
+      "schema": "ChatSession",
+      "description": "Chat history sessions"
+    },
+    "/deletedUsers/{logId}": {
+      "schema": "DeletedUser",
+      "description": "Log of deleted accounts"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {userId} (Auto-generated)
+// Fields:
+//   - username: string (required) - Unique username
+//   - password: string (required) - Plain text password
+//   - displayName: string (optional) - User's display name
+//   - role: string (required, enum: ['student', 'admin']) - User role
+//   - status: string (required, enum: ['active', 'inactive']) - Account status
+//   - isDeveloper: boolean (required) - Whether the user is a developer
+//   - createdAt: timestamp (required) - Account creation time
+//   - lastLogin: timestamp (required) - Last login time
+//
+// Collection: chatSessions
+// Document ID: {sessionId} (Auto-generated)
+// Fields:
+//   - userId: string (required) - Owner's username
+//   - title: string (required) - Session title
+//   - messages: list (required) - Array of message objects {role, content, timestamp}
+//   - category: string (required) - Subject category
+//   - createdAt: number/timestamp (required) - Creation time
+//   - updatedAt: number/timestamp (required) - Last update time
+//
+// Collection: deletedUsers
+// Document ID: {logId} (Auto-generated)
+// Fields:
+//   - username: string (required) - Deleted username
+//   - displayName: string (optional) - User's display name
+//   - role: string (required) - User role
+//   - deletedBy: string (required) - Username of the person who deleted the account
+//   - deletedAt: timestamp (required) - Deletion time
+//   - originalDocId: string (required) - Original document ID
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    
+    // WARNING: This application uses a custom username/password system
+    // instead of Firebase Auth. This means we cannot use request.auth
+    // to secure the database. In a production app, you should use
+    // Firebase Auth to properly secure your data.
+
+    // Users collection
+    match /users/{userId} {
+      // Allow reading for login and developer management
+      allow read: if true;
+      // Allow writing for account creation and management
+      // In a real app, this should be restricted to authenticated developers
+      allow create, update, delete: if true;
+    }
+
+    // Chat Sessions collection
+    match /chatSessions/{sessionId} {
+      // Allow reading and writing for chat functionality
+      // In a real app, this should be restricted to the session owner
+      allow read, create, update, delete: if true;
+    }
+
+    // Deleted Users Log collection
+    match /deletedUsers/{logId} {
+      // Allow reading for developers and writing for logging
+      allow read, create: if true;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
